@@ -1,0 +1,36 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/marslab/pug/devel/include/**",
+        "/home/marslab/catkin_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/marslab/pug/src/avoidance/avoidance/include/**",
+        "/home/marslab/pug/src/ddynamic_reconfigure/include/**",
+        "/home/marslab/pug/src/avoidance/global_planner/include/**",
+        "/home/marslab/pug/src/gscam/include/**",
+        "/home/marslab/catkin_ws/src/learning_tf/include/**",
+        "/home/marslab/pug/src/mavros/libmavconn/include/**",
+        "/home/marslab/pug/src/avoidance/local_planner/include/**",
+        "/home/marslab/pug/src/mavros/mavros/include/**",
+        "/home/marslab/pug/src/mavros/mavros_msgs/include/**",
+        "/home/marslab/pug/src/realsense-ros/realsense2_camera/include/**",
+        "/home/marslab/pug/src/realsense_gazebo_plugin/include/**",
+        "/home/marslab/pug/src/rf2o_laser_odometry/include/**",
+        "/home/marslab/pug/src/avoidance/safe_landing_planner/include/**",
+        "/home/marslab/pug/src/mavros/test_mavros/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
