@@ -113,12 +113,12 @@ class InverseKinematics6DOF:
         # Default joint limits 
         if joint_limits is None:
             self.joint_limits = [
-                [-1*np.pi, 1*np.pi],        # Joint 1 (base rotation)
+                [-2*np.pi, 2*np.pi],        # Joint 1 (base rotation)
                 [0*np.pi, 1*np.pi],    # Joint 2 
-                [-1*np.pi, 1*np.pi],        # Joint 3
-                [-1*np.pi, 1*np.pi],        # Joint 4
-                [-1*np.pi, 1*np.pi],        # Joint 5
-                [-1*np.pi, 1*np.pi]         # Joint 6
+                [-2*np.pi, 2*np.pi],        # Joint 3
+                [-2*np.pi, 2*np.pi],        # Joint 4
+                [-2*np.pi, 2*np.pi],        # Joint 5
+                [-2*np.pi, 2*np.pi]         # Joint 6
             ]
         else:
             self.joint_limits = joint_limits
@@ -169,7 +169,7 @@ class InverseKinematics6DOF:
         return np.sum(weighted_error**2)
     
     def solve_ik(self, target_position, target_rotation=None, 
-                 initial_guess=None, method='SLSQP', weights=None, 
+                 initial_guess=None, method='L-BFGS-B', weights=None, 
                  position_only=False):
         """
         Solve inverse kinematics
@@ -300,7 +300,7 @@ def test_ik_solver():
     # Define trajectory
     start_pos = np.array([0, 0.5, 1.5])
     end_pos = np.array([0, -0.5, 1])
-    target_rot = create_rotation_matrix_xyz(0, 3.14, 0)
+    target_rot = create_rotation_matrix_xyz(3.14, 0, 0)
     num_steps = 100
     
     trajectory = np.linspace(start_pos, end_pos, num_steps)
@@ -315,7 +315,7 @@ def test_ik_solver():
     prev_joint_angle = None
     ee_pos =[]
     circle_traj = points.generate_circle(0.5, 0.5, 0.5, 0.8, 500)
-    square_traj = points.generate_square(0.1, -0.5, 1,1, 1, 50)
+    square_traj = points.generate_square(cx = 0, cy =0, z=0.5, width=1, height=1,num_points_per_edge=20, roll=0, pitch = 0, yaw = np.pi/4)
 
     for i, pos in enumerate(square_traj):
         if prev_joint_angle is not None: 
@@ -323,29 +323,35 @@ def test_ik_solver():
         else: 
             result = ik_solver.solve_ik(pos, target_rot)
         
-        #debug flag
-        if not result['success']:
-            print(f'Step {i}: Failed to reach pose {pos}')
-            continue
+        if result['success']:
 
-        #take previous joint angle 
-        prev_joint_angle = result['joint_angles']
+            #take previous joint angle 
+            prev_joint_angle = result['joint_angles']
+            
+            # Clear previous plot
+            ax.clear()
+            # Show robot position in real-time
+            visualize_robot(ax,result['joint_angles'], title=f"Step {i}: Position {pos}")
 
-        # Clear previous plot
-        ax.clear()
-        # Show robot position in real-time
-        visualize_robot(ax,result['joint_angles'], title=f"Step {i}: Position {pos}")
+            #append ee position
+            ee_pos.append(result['final_position'])
 
-        #append ee position
-        ee_pos.append(result['final_position'])
+            traj = np.array(ee_pos)
 
-        traj = np.array(ee_pos)
+            ax.plot3D(traj[:,0], traj[:,1], traj[:,2], 'r', linewidth = 2, alpha= 0.8)
+            #ax.plot3D(circle_traj[:,0], circle_traj[:,1], circle_traj[:,2], 'g', linewidth = 2, alpha= 0.8)
+            ax.plot3D(square_traj[:,0], square_traj[:,1], square_traj[:,2], 'g', linewidth = 2, alpha= 0.8)
+            print(f"Final position: [{result['final_position'][0]:.3f}, {result['final_position'][1]:.3f}, {result['final_position'][2]:.3f}]")
+            print(f"Position error: {result['position_error']:.3f}")
+            print(f"Joint angles (deg): {result['joint_angles_deg']}")
+            plt.pause(0.1)  # Small delay for animation effect
 
-        ax.plot3D(traj[:,0], traj[:,1], traj[:,2], 'r', linewidth = 2, alpha= 0.8)
-        #ax.plot3D(circle_traj[:,0], circle_traj[:,1], circle_traj[:,2], 'g', linewidth = 2, alpha= 0.8)
-        #ax.plot3D(square_traj[:,0], square_traj[:,1], square_traj[:,2], 'g', linewidth = 2, alpha= 0.8)
+        else: 
+            print('failed to reach coordinate')
+            print(f"Error: {result['total_error']:.6f}")
 
-        plt.pause(0.1)  # Small delay for animation effect
+
+
 
     plt.show()  # Keep final plot open
     print("Trajectory complete!")
